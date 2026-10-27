@@ -111,8 +111,9 @@ final class validator {
         // Mark as used now to prevent replay.
         $DB->set_field('auth_jwtsso_nonces', 'used', 1, ['id' => $noncerec->id]);
 
-        // Require email (your callback also relies on it).
-        if (empty($claims['email'])) {
+        // Require email claim as configured.
+        $emailclaim = trim((string)($config->claim_email ?? '')) ?: 'email';
+        if (empty($claims[$emailclaim])) {
             throw new \moodle_exception('missingemail', 'auth_jwtsso');
         }
 
