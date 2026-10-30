@@ -41,14 +41,23 @@ if (!empty(get_config('auth_jwtsso', 'detailedevents'))) {
 try {
     $claims = \auth_jwtsso\local\validator::validate($token);
 
-    $emailclaim = get_config('auth_jwtsso', 'claim_email') ?: 'email';
-    $userclaim  = get_config('auth_jwtsso', 'claim_username') ?: $emailclaim;
+    $idnumberclaim = trim((string)get_config('auth_jwtsso', 'claim_idnumber'));
 
-    $email = core_text::strtolower(trim((string)($claims[$emailclaim] ?? '')));
-    $username = core_text::strtolower(trim((string)($claims[$userclaim] ?? $email)));
+    if ($idnumberclaim !== '') {
+        $idnumber = trim((string)($claims[$idnumberclaim] ?? ''));
+        if ($idnumber === '') {
+            throw new moodle_exception('missingidnumber', 'auth_jwtsso');
+        }
+    } else {
+        $emailclaim = get_config('auth_jwtsso', 'claim_email') ?: 'email';
+        $userclaim  = get_config('auth_jwtsso', 'claim_username') ?: $emailclaim;
 
-    if (empty($email)) {
-        throw new moodle_exception('missingemail', 'auth_jwtsso');
+        $email = core_text::strtolower(trim((string)($claims[$emailclaim] ?? '')));
+        $username = core_text::strtolower(trim((string)($claims[$userclaim] ?? $email)));
+
+        if (empty($email)) {
+            throw new moodle_exception('missingemail', 'auth_jwtsso');
+        }
     }
 
     // Fire token_validated as soon as the claims are verified.
@@ -61,7 +70,20 @@ try {
 
     global $DB, $CFG;
 
-    if (!$user = $DB->get_record('user', ['email' => $email, 'deleted' => 0])) {
+    if ($idnumberclaim !== '') {
+        $matches = $DB->get_records('user', [
+            'idnumber' => $idnumber,
+            'deleted' => 0,
+        ], 'id', '*');
+
+        if (count($matches) > 1) {
+            throw new moodle_exception('ambiguousidnumber', 'auth_jwtsso', '', $idnumber);
+        }
+        if (!$matches) {
+            throw new moodle_exception('usernotfound', 'auth_jwtsso', '', $idnumber);
+        }
+        $user = reset($matches);
+    } else if (!$user = $DB->get_record('user', ['email' => $email, 'deleted' => 0])) {
         if (!empty(get_config('auth_jwtsso', 'autocreate'))) {
             $u = new stdClass();
             $u->auth       = 'jwtsso';

@@ -111,10 +111,17 @@ final class validator {
         // Mark as used now to prevent replay.
         $DB->set_field('auth_jwtsso_nonces', 'used', 1, ['id' => $noncerec->id]);
 
-        // Require email claim as configured.
-        $emailclaim = trim((string)($config->claim_email ?? '')) ?: 'email';
-        if (empty($claims[$emailclaim])) {
-            throw new \moodle_exception('missingemail', 'auth_jwtsso');
+        // Require the identifier claim for the active mode.
+        $idnumberclaim = trim((string)($config->claim_idnumber ?? ''));
+        if ($idnumberclaim !== '') {
+            if (trim((string)($claims[$idnumberclaim] ?? '')) === '') {
+                throw new \moodle_exception('missingidnumber', 'auth_jwtsso');
+            }
+        } else {
+            $emailclaim = trim((string)($config->claim_email ?? '')) ?: 'email';
+            if (empty($claims[$emailclaim])) {
+                throw new \moodle_exception('missingemail', 'auth_jwtsso');
+            }
         }
 
         return $claims;

@@ -29,6 +29,8 @@ $string['audience_desc'] = 'Expected aud claim. Defaults to this Moodle’s URL.
 $string['autocreate'] = 'Just-in-time user creation';
 $string['cachedef_jwks'] = 'JWKS cache';
 $string['claim_email'] = 'Claim for email';
+$string['claim_idnumber'] = 'Claim for idnumber (user identifier)';
+$string['claim_idnumber_desc'] = 'JWT claim used to find the Moodle user by idnumber. Leave empty to keep email-based login.';
 $string['claim_username'] = 'Claim for username';
 $string['detailedevents'] = 'Enable detailed event logging';
 $string['detailedevents_desc'] = 'Logs granular events to aid debugging.';
@@ -68,7 +70,9 @@ $string['badtime']        = 'Token time window is invalid or expired.';
 $string['missingnonce']   = 'Nonce is required.';
 $string['invalidnonce']   = 'Nonce is invalid, used, or expired.';
 $string['missingemail']   = 'Email claim is required.';
+$string['missingidnumber'] = 'idnumber claim is required.';
 $string['usernotfound']   = 'User not found and auto-create is disabled.';
+$string['ambiguousidnumber'] = 'Multiple users share this idnumber. Contact an administrator.';
 $string['err_login_failed'] = 'SSO login failed. Please try again or contact support.';
 
 /* ──────────────────────────────────────────────────────────────
