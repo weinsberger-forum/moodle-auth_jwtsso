@@ -115,4 +115,12 @@ if ($ADMIN->fulltree) {
         'email',
         PARAM_ALPHANUMEXT
     ));
+
+    $settings->add(new admin_setting_configtext(
+        'auth_jwtsso/claim_idnumber',
+        get_string('claim_idnumber', 'auth_jwtsso'),
+        get_string('claim_idnumber_desc', 'auth_jwtsso'),
+        '',
+        PARAM_ALPHANUMEXT
+    ));
 }
